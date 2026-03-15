@@ -9,4 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Show git hash
-        run: echo "Git hash: ${GITHUB_SHA}"
+        run: |
+          echo "Git hash: $GITHUB_SHA"

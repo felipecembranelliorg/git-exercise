@@ -1,0 +1,67 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet-restore-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fake restore
+        run: echo "[EXAMPLE ONLY] dotnet restore would run here"
+
+  dotnet-build-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: dotnet-restore-example
+    steps:
+      - name: Fake build
+        run: echo "[EXAMPLE ONLY] dotnet build --configuration Release would run here"
+
+  dotnet-test-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: dotnet-build-example
+    steps:
+      - name: Fake tests
+        run: echo "[EXAMPLE ONLY] dotnet test --configuration Release would run here"
+
+  dotnet-code-quality-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: dotnet-build-example
+    steps:
+      - name: Fake formatting check
+        run: |
+          echo "[EXAMPLE ONLY] dotnet format --verify-no-changes would run here"
+
+  pr-summary-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs:
+      - dotnet-test-example
+      - dotnet-code-quality-example
+    steps:
+      - name: Fake gate summary
+        run: echo "[EXAMPLE ONLY] All .NET PR validation checks passed"

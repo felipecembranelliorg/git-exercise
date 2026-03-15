@@ -1,4 +1,6 @@
 testessjfsjkdfaj
-fdsasfsdfds
+fdsasfsdfds - fixed
 NEW FEATURE IMPLEMENTATION 3
 fixed
+NEW FEATURE IMPLEMENTATION - 3
+fixed 2

@@ -1,13 +1,20 @@
 name: Dummy Pipeline
 
 on:
-  push:
   pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+permissions:
+  pull-requests: read
 
 jobs:
   dummy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Show git hash
         run: |
-          echo "Git hash: $GITHUB_SHA"
+          echo "Git hash: ${GITHUB_SHA}"

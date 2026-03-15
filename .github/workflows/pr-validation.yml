@@ -19,75 +19,49 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  dotnet-restore-example:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Fake restore
+        run: echo "[EXAMPLE ONLY] dotnet restore would run here"
 
-      - name: Setup Node
-        if: hashFiles('package.json') != ''
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
+  dotnet-build-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: dotnet-restore-example
+    steps:
+      - name: Fake build
+        run: echo "[EXAMPLE ONLY] dotnet build --configuration Release would run here"
 
-      - name: Install Node dependencies
-        if: hashFiles('package.json') != ''
+  dotnet-test-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: dotnet-build-example
+    steps:
+      - name: Fake tests
+        run: echo "[EXAMPLE ONLY] dotnet test --configuration Release would run here"
+
+  dotnet-code-quality-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: dotnet-build-example
+    steps:
+      - name: Fake formatting check
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+          echo "[EXAMPLE ONLY] dotnet format --verify-no-changes would run here"
 
-      - name: Node code quality
-        if: hashFiles('package.json') != ''
-        run: |
-          npm run lint --if-present
-          npm run typecheck --if-present
-          npm run format:check --if-present
-
-      - name: Node tests
-        if: hashFiles('package.json') != ''
-        run: npm test --if-present
-
-      - name: Node build
-        if: hashFiles('package.json') != ''
-        run: npm run build --if-present
-
-      - name: Setup Python
-        if: hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != ''
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-
-      - name: Install Python dependencies
-        if: hashFiles('requirements.txt') != ''
-        run: pip install -r requirements.txt
-
-      - name: Python code quality
-        if: hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != ''
-        run: |
-          if [ -f pyproject.toml ]; then
-            python -m pip install ruff
-            ruff check .
-          else
-            echo "No Python lint config detected; skipping Python lint."
-          fi
-
-      - name: Python tests
-        if: hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != ''
-        run: |
-          python -m pip install pytest
-          pytest -q
-
-      - name: Guardrail (no project config)
-        if: hashFiles('package.json') == '' && hashFiles('requirements.txt') == '' && hashFiles('pyproject.toml') == ''
-        run: |
-          echo "No Node or Python project files found."
-          echo "Add project-specific checks in .github/workflows/pr-validation.yml"
+  pr-summary-example:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs:
+      - dotnet-test-example
+      - dotnet-code-quality-example
+    steps:
+      - name: Fake gate summary
+        run: echo "[EXAMPLE ONLY] All .NET PR validation checks passed"
